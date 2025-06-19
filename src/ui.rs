@@ -155,6 +155,18 @@ fn render_guessing_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) 
                         .add_modifier(Modifier::BOLD),
                 ),
                 Span::raw(" | "),
+                Span::styled("Actual: ", Style::default().fg(Color::Yellow)),
+                Span::styled(
+                    format!("{:.4}", app.acc_sharpe),
+                    Style::default().fg(Color::LightCyan),
+                ),
+                Span::raw(" | "),
+                Span::styled("Sample: ", Style::default().fg(Color::Yellow)),
+                Span::styled(
+                    format!("{:.4}", app.sample_sharpe),
+                    Style::default().fg(Color::LightCyan),
+                ),
+                Span::raw(" | "),
                 Span::styled(
                     format!("Score: {}", app.score),
                     Style::default()
