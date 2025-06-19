@@ -2,6 +2,13 @@
 name = "guess_the_sharpe"
 version = "0.1.0"
 edition = "2024"
+readme = "README.md"
+license = "MIT"
+keywords = []
+categories = []
+description = "Guess the Sharpe TUI game"
+repository = "https://github.com/KGrewal1/guess_the_sharpes"
+exclude = ["*.ipynb"]
 
 [dependencies]
 anyhow = "1.0.98"
