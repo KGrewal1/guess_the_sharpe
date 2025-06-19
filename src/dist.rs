@@ -27,8 +27,8 @@ fn calc_sample_sharpe(sample: [f64; DAYS]) -> f64 {
     let sample_var = sample.iter().map(|x| (x - sample_mu).powi(2)).sum::<f64>() / DAYS as f64;
     let sample_std = sample_var.sqrt();
     // Annualize the Sharpe ratio: multiply mean by 252 and std by sqrt(252)
-    let sample_sharpe = (sample_mu * 252.0) / (sample_std * 252.0_f64.sqrt());
-    sample_sharpe
+    
+    (sample_mu * 252.0) / (sample_std * 252.0_f64.sqrt())
 }
 
 pub fn gen_random_dist(rng: &mut ChaCha20Rng) -> ([f64; DAYS], f64, f64) {

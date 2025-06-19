@@ -74,10 +74,8 @@ impl App {
     }
 
     pub fn add_char_to_guess(&mut self, c: char) {
-        if self.mode == AppMode::Guessing && self.guess_state == GuessState::WaitingForGuess {
-            if c.is_ascii_digit() || c == '.' || c == '-' {
-                self.current_guess.push(c);
-            }
+        if self.mode == AppMode::Guessing && self.guess_state == GuessState::WaitingForGuess && (c.is_ascii_digit() || c == '.' || c == '-') {
+            self.current_guess.push(c);
         }
     }
 
