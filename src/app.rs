@@ -74,7 +74,10 @@ impl App {
     }
 
     pub fn add_char_to_guess(&mut self, c: char) {
-        if self.mode == AppMode::Guessing && self.guess_state == GuessState::WaitingForGuess && (c.is_ascii_digit() || c == '.' || c == '-') {
+        if self.mode == AppMode::Guessing
+            && self.guess_state == GuessState::WaitingForGuess
+            && (c.is_ascii_digit() || c == '.' || c == '-')
+        {
             self.current_guess.push(c);
         }
     }
@@ -148,5 +151,17 @@ impl App {
                 (i as f64, cumulative_return)
             })
             .collect()
+    }
+
+    pub fn get_mean_daily_return(&self) -> f64 {
+        self.sample.iter().sum::<f64>() / self.sample.len() as f64
+    }
+
+    pub fn get_min_daily_return(&self) -> f64 {
+        self.sample.iter().fold(f64::INFINITY, |a, &b| a.min(b))
+    }
+
+    pub fn get_max_daily_return(&self) -> f64 {
+        self.sample.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b))
     }
 }

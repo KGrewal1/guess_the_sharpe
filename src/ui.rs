@@ -37,6 +37,10 @@ pub fn ui(f: &mut Frame, app: &App) {
 
 fn render_display_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) {
     let sharpe_error = app.get_sharpe_error();
+    let mean_return = app.get_mean_daily_return();
+    let min_return = app.get_min_daily_return();
+    let max_return = app.get_max_daily_return();
+
     let stats_text = vec![Line::from(vec![
         Span::styled("Actual Sharpe: ", Style::default().fg(Color::Yellow)),
         Span::styled(
@@ -52,6 +56,24 @@ fn render_display_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) {
         Span::styled(
             format!(" ±{:.4}", sharpe_error),
             Style::default().fg(Color::Gray),
+        ),
+        Span::raw("  "),
+        Span::styled("Mean: ", Style::default().fg(Color::Yellow)),
+        Span::styled(
+            format!("{:.6}", mean_return),
+            Style::default().fg(Color::White),
+        ),
+        Span::raw("  "),
+        Span::styled("Min: ", Style::default().fg(Color::Yellow)),
+        Span::styled(
+            format!("{:.4}", min_return),
+            Style::default().fg(Color::Red),
+        ),
+        Span::raw("  "),
+        Span::styled("Max: ", Style::default().fg(Color::Yellow)),
+        Span::styled(
+            format!("{:.4}", max_return),
+            Style::default().fg(Color::Green),
         ),
     ])];
 
