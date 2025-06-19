@@ -10,6 +10,7 @@ pub enum AppEvent {
     Backspace,
     Enter,
     NextRound,
+    ToggleTarget,
 }
 
 pub struct EventHandler {
@@ -30,6 +31,7 @@ impl EventHandler {
                         KeyCode::Char('q') | KeyCode::Esc => Ok(AppEvent::Quit),
                         KeyCode::Char('r') => Ok(AppEvent::Recalc),
                         KeyCode::Char('n') => Ok(AppEvent::NextRound),
+                        KeyCode::Char('t') => Ok(AppEvent::ToggleTarget),
                         KeyCode::Char(c) => Ok(AppEvent::CharInput(c)),
                         KeyCode::Backspace => Ok(AppEvent::Backspace),
                         KeyCode::Enter => Ok(AppEvent::Enter),

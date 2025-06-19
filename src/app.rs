@@ -14,6 +14,12 @@ pub enum GuessState {
     ShowingResult,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum GuessTarget {
+    Sample,
+    Actual,
+}
+
 pub struct App {
     pub running: bool,
     pub rng: ChaCha20Rng,
@@ -22,6 +28,7 @@ pub struct App {
     pub sample_sharpe: f64,
     pub mode: AppMode,
     pub guess_state: GuessState,
+    pub guess_target: GuessTarget,
     pub current_guess: String,
     pub score: u32,
     pub last_guess: Option<f64>,
@@ -41,6 +48,7 @@ impl App {
             sample_sharpe,
             mode,
             guess_state: GuessState::WaitingForGuess,
+            guess_target: GuessTarget::Sample,
             current_guess: String::new(),
             score: 0,
             last_guess: None,
@@ -78,6 +86,15 @@ impl App {
             self.current_guess.pop();
         }
     }
+    pub fn toggle_guess_target(&mut self) {
+        if self.mode == AppMode::Guessing && self.guess_state == GuessState::WaitingForGuess {
+            self.guess_target = match self.guess_target {
+                GuessTarget::Sample => GuessTarget::Actual,
+                GuessTarget::Actual => GuessTarget::Sample,
+            };
+        }
+    }
+
     pub fn submit_guess(&mut self) {
         if self.mode == AppMode::Guessing && self.guess_state == GuessState::WaitingForGuess {
             if let Ok(guess) = self.current_guess.parse::<f64>() {
@@ -86,9 +103,15 @@ impl App {
                 // Calculate sample sharpe error: sqrt((1 + sharpe^2 / 2) / T)
                 let sharpe_error = self.get_sharpe_error();
 
-                // Check if guess is within error bounds of sample sharpe
+                // Choose the target value based on guess_target
+                let target_value = match self.guess_target {
+                    GuessTarget::Sample => self.sample_sharpe,
+                    GuessTarget::Actual => self.acc_sharpe,
+                };
+
+                // Check if guess is within error bounds of target
                 // sample sharpe error ~ 1 std dev - use 0.12 std dev to get about 10% of the dist
-                if (guess - self.sample_sharpe).abs() <= 0.12 * sharpe_error {
+                if (guess - target_value).abs() <= 0.12 * sharpe_error {
                     self.score += 1;
                     self.guess_was_correct = true;
                 } else {
@@ -108,6 +131,13 @@ impl App {
 
     pub fn get_sharpe_error(&self) -> f64 {
         ((1.0 + self.sample_sharpe.powi(2) / 2.0) / DAYS as f64).sqrt() * (252.0_f64.sqrt())
+    }
+
+    pub fn get_guess_target_name(&self) -> &'static str {
+        match self.guess_target {
+            GuessTarget::Sample => "Sample",
+            GuessTarget::Actual => "Actual",
+        }
     }
 
     pub fn get_plot_data(&self) -> Vec<(f64, f64)> {

@@ -80,6 +80,14 @@ fn render_guessing_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) 
                         .fg(Color::Green)
                         .add_modifier(Modifier::BOLD),
                 ),
+                Span::raw("   "),
+                Span::styled("Target: ", Style::default().fg(Color::Yellow)),
+                Span::styled(
+                    app.get_guess_target_name(),
+                    Style::default()
+                        .fg(Color::Magenta)
+                        .add_modifier(Modifier::BOLD),
+                ),
             ])]
         }
         GuessState::ShowingResult => {
@@ -95,6 +103,12 @@ fn render_guessing_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) 
             };
             let sharpe_error = app.get_sharpe_error();
 
+            // Get the target value that was being guessed
+            let target_value = match app.guess_target {
+                crate::app::GuessTarget::Sample => app.sample_sharpe,
+                crate::app::GuessTarget::Actual => app.acc_sharpe,
+            };
+
             vec![Line::from(vec![
                 Span::styled("Guess: ", Style::default().fg(Color::Yellow)),
                 Span::styled(
@@ -102,19 +116,13 @@ fn render_guessing_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) 
                     Style::default().fg(Color::White),
                 ),
                 Span::raw(" | "),
-                Span::styled("Actual: ", Style::default().fg(Color::Yellow)),
+                Span::styled("Target: ", Style::default().fg(Color::Yellow)),
                 Span::styled(
-                    format!("{:.4}", app.acc_sharpe),
-                    Style::default().fg(Color::Green),
-                ),
-                Span::raw(" | "),
-                Span::styled("Sample: ", Style::default().fg(Color::Yellow)),
-                Span::styled(
-                    format!("{:.4}", app.sample_sharpe),
-                    Style::default().fg(Color::Cyan),
+                    format!("{:.4}", target_value),
+                    Style::default().fg(Color::Magenta),
                 ),
                 Span::styled(
-                    format!(" ±{:.4}", sharpe_error),
+                    format!(" ({}) ±{:.4}", app.get_guess_target_name(), sharpe_error),
                     Style::default().fg(Color::Gray),
                 ),
                 Span::raw(" | "),
@@ -255,7 +263,14 @@ fn render_guessing_instructions(f: &mut Frame, app: &App, area: ratatui::layout:
                         .fg(Color::Yellow)
                         .add_modifier(Modifier::BOLD),
                 ),
-                Span::styled(" to submit. ", Style::default().fg(Color::White)),
+                Span::styled(" to submit. Press ", Style::default().fg(Color::White)),
+                Span::styled(
+                    "'t'",
+                    Style::default()
+                        .fg(Color::Yellow)
+                        .add_modifier(Modifier::BOLD),
+                ),
+                Span::styled(" to toggle target, ", Style::default().fg(Color::White)),
                 Span::styled(
                     "'q'",
                     Style::default()

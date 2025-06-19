@@ -74,6 +74,7 @@ fn run_app<B: ratatui::backend::Backend>(
             AppEvent::Backspace => app.remove_char_from_guess(),
             AppEvent::Enter => app.submit_guess(),
             AppEvent::NextRound => app.next_round(),
+            AppEvent::ToggleTarget => app.toggle_guess_target(),
             AppEvent::Tick => {
                 // Just update the display
             }
