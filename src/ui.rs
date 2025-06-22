@@ -189,7 +189,7 @@ fn render_guessing_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) 
 }
 
 fn render_chart(f: &mut Frame, app: &App, area: ratatui::layout::Rect) {
-    let plot_data = app.get_plot_data();
+    let plot_data = app.plot_data;
 
     // Find min and max values for scaling
     let min_y = plot_data

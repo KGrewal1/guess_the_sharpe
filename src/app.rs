@@ -1,4 +1,4 @@
-use crate::dist::{DAYS, Stats, gen_random_dist};
+use crate::dist::{DAYS, Stats, gen_random_dist, plot_data};
 use rand::SeedableRng;
 use rand_chacha::ChaCha20Rng;
 
@@ -23,7 +23,7 @@ pub enum GuessTarget {
 pub struct App {
     pub running: bool,
     pub rng: ChaCha20Rng,
-    pub sample: [f64; DAYS],
+    pub plot_data: [(f64, f64); DAYS],
     pub stats: Stats,
     pub mode: AppMode,
     pub guess_state: GuessState,
@@ -39,10 +39,12 @@ impl App {
         let mut rng = ChaCha20Rng::from_os_rng();
         let (sample, stats) = gen_random_dist(&mut rng);
 
+        let plot_data = plot_data(&sample);
+
         Self {
             running: true,
             rng,
-            sample,
+            plot_data,
             stats,
             mode,
             guess_state: GuessState::WaitingForGuess,
@@ -60,7 +62,7 @@ impl App {
 
     pub fn recalc(&mut self) {
         let (sample, stats) = gen_random_dist(&mut self.rng);
-        self.sample = sample;
+        self.plot_data = plot_data(&sample);
         self.stats = stats;
 
         if self.mode == AppMode::Guessing {
@@ -132,17 +134,5 @@ impl App {
             GuessTarget::Sample => "Sample",
             GuessTarget::Actual => "Actual",
         }
-    }
-
-    pub fn get_plot_data(&self) -> Vec<(f64, f64)> {
-        let mut cumulative_return = 0.0;
-        self.sample
-            .iter()
-            .enumerate()
-            .map(|(i, &value)| {
-                cumulative_return += value;
-                (i as f64, cumulative_return)
-            })
-            .collect()
     }
 }

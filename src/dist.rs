@@ -71,3 +71,11 @@ pub fn gen_random_dist(rng: &mut ChaCha20Rng) -> ([f64; DAYS], Stats) {
     };
     (returns, stats)
 }
+
+pub fn plot_data<const N: usize>(day_data: &[f64; N]) -> [(f64, f64); N] {
+    let mut cumulative_return = 0.0;
+    std::array::from_fn(|i| {
+        cumulative_return += day_data[i];
+        (i as f64, cumulative_return)
+    })
+}
