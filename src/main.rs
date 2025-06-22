@@ -3,7 +3,7 @@ mod dist;
 mod event;
 mod ui;
 
-use app::{App, AppMode};
+use app::{App, AppMode, Guess};
 use clap::Parser;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
@@ -35,7 +35,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Create app and run it
     let mode = if cli.guessing_mode {
-        AppMode::Guessing
+        AppMode::Guessing(Guess {
+            state: app::GuessState::WaitingForGuess,
+            target: app::GuessTarget::Sample,
+            current_guess: String::with_capacity(8),
+            score: 0,
+            last_guess: None,
+            guess_was_correct: false,
+        })
     } else {
         AppMode::Display
     };

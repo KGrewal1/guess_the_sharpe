@@ -1,4 +1,4 @@
-use crate::app::{App, AppMode, GuessState};
+use crate::app::{App, AppMode, Guess, GuessState};
 use crate::dist::Stats;
 use ratatui::{
     Frame,
@@ -23,7 +23,7 @@ pub fn ui(f: &mut Frame, app: &App) {
     // Stats section
     match app.mode {
         AppMode::Display => render_display_stats(f, &app.stats, chunks[0]),
-        AppMode::Guessing => render_guessing_stats(f, app, chunks[0]),
+        AppMode::Guessing(ref guess) => render_guessing_stats(f, guess, &app.stats, chunks[0]),
     }
 
     // Chart section
@@ -32,7 +32,9 @@ pub fn ui(f: &mut Frame, app: &App) {
     // Instructions section
     match app.mode {
         AppMode::Display => render_display_instructions(f, chunks[2]),
-        AppMode::Guessing => render_guessing_instructions(f, &app.guess_state, chunks[2]),
+        AppMode::Guessing(Guess { state, .. }) => {
+            render_guessing_instructions(f, &state, chunks[2])
+        }
     }
 }
 
@@ -85,20 +87,20 @@ fn render_display_stats(f: &mut Frame, stats: &Stats, area: ratatui::layout::Rec
     f.render_widget(stats_paragraph, area);
 }
 
-fn render_guessing_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) {
-    let stats_text = match app.guess_state {
+fn render_guessing_stats(f: &mut Frame, guess: &Guess, stats: &Stats, area: ratatui::layout::Rect) {
+    let stats_text = match guess.state {
         GuessState::WaitingForGuess => {
             vec![Line::from(vec![
                 Span::styled("Your guess: ", Style::default().fg(Color::Yellow)),
                 Span::styled(
-                    &app.current_guess,
+                    &guess.current_guess,
                     Style::default()
                         .fg(Color::White)
                         .add_modifier(Modifier::UNDERLINED),
                 ),
                 Span::raw("   "),
                 Span::styled(
-                    format!("Score: {}", app.score),
+                    format!("Score: {}", guess.score),
                     Style::default()
                         .fg(Color::Green)
                         .add_modifier(Modifier::BOLD),
@@ -106,7 +108,7 @@ fn render_guessing_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) 
                 Span::raw("   "),
                 Span::styled("Target: ", Style::default().fg(Color::Yellow)),
                 Span::styled(
-                    app.get_guess_target_name(),
+                    guess.target.name(),
                     Style::default()
                         .fg(Color::Magenta)
                         .add_modifier(Modifier::BOLD),
@@ -114,28 +116,28 @@ fn render_guessing_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) 
             ])]
         }
         GuessState::ShowingResult => {
-            let result_color = if app.guess_was_correct {
+            let result_color = if guess.guess_was_correct {
                 Color::Green
             } else {
                 Color::Red
             };
-            let result_text = if app.guess_was_correct {
+            let result_text = if guess.guess_was_correct {
                 "CORRECT!"
             } else {
                 "INCORRECT"
             };
-            let sharpe_error = app.stats.sharpe_error;
+            let sharpe_error = stats.sharpe_error;
 
             // Get the target value that was being guessed
-            let target_value = match app.guess_target {
-                crate::app::GuessTarget::Sample => app.stats.sample_sharpe,
-                crate::app::GuessTarget::Actual => app.stats.acc_sharpe,
+            let target_value = match guess.target {
+                crate::app::GuessTarget::Sample => stats.sample_sharpe,
+                crate::app::GuessTarget::Actual => stats.acc_sharpe,
             };
 
             vec![Line::from(vec![
                 Span::styled("Guess: ", Style::default().fg(Color::Yellow)),
                 Span::styled(
-                    format!("{:.4}", app.last_guess.unwrap_or(0.0)),
+                    format!("{:.4}", guess.last_guess.unwrap_or(0.0)),
                     Style::default().fg(Color::White),
                 ),
                 Span::raw(" | "),
@@ -145,7 +147,7 @@ fn render_guessing_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) 
                     Style::default().fg(Color::Magenta),
                 ),
                 Span::styled(
-                    format!(" ({}) ±{:.4}", app.get_guess_target_name(), sharpe_error),
+                    format!(" ({}) ±{:.4}", guess.target.name(), sharpe_error),
                     Style::default().fg(Color::Gray),
                 ),
                 Span::raw(" | "),
@@ -158,18 +160,18 @@ fn render_guessing_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) 
                 Span::raw(" | "),
                 Span::styled("Actual: ", Style::default().fg(Color::Yellow)),
                 Span::styled(
-                    format!("{:.4}", app.stats.acc_sharpe),
+                    format!("{:.4}", stats.acc_sharpe),
                     Style::default().fg(Color::LightCyan),
                 ),
                 Span::raw(" | "),
                 Span::styled("Sample: ", Style::default().fg(Color::Yellow)),
                 Span::styled(
-                    format!("{:.4}", app.stats.sample_sharpe),
+                    format!("{:.4}", stats.sample_sharpe),
                     Style::default().fg(Color::LightCyan),
                 ),
                 Span::raw(" | "),
                 Span::styled(
-                    format!("Score: {}", app.score),
+                    format!("Score: {}", guess.score),
                     Style::default()
                         .fg(Color::Green)
                         .add_modifier(Modifier::BOLD),
