@@ -86,7 +86,7 @@ impl App {
         if let AppMode::Guessing(ref mut guess) = self.mode {
             if guess.state == GuessState::WaitingForGuess {
                 // Only allow digits and decimal point in the guess
-                if c.is_ascii_digit() || c == '.' {
+                if c.is_ascii_digit() || c == '.' || c == '-' {
                     guess.current_guess.push(c);
                 }
             }
