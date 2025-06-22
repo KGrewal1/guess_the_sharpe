@@ -100,7 +100,6 @@ impl App {
             if let Ok(guess) = self.current_guess.parse::<f64>() {
                 self.last_guess = Some(guess);
 
-                // Calculate sample sharpe error: sqrt((1 + sharpe^2 / 2) / T)
                 let sharpe_error = self.stats.sharpe_error;
 
                 // Choose the target value based on guess_target

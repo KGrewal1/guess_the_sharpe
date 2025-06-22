@@ -36,12 +36,9 @@ fn calc_sample_sharpe(sample: [f64; DAYS]) -> (f64, f64) {
     let sample_mu = sample.iter().sum::<f64>() / DAYS as f64;
     let sample_var = sample.iter().map(|x| (x - sample_mu).powi(2)).sum::<f64>() / DAYS as f64;
     let sample_std = sample_var.sqrt();
-    // Annualize the Sharpe ratio: multiply mean by 252 and std by sqrt(252)
+    // Annualize the Sharpe ratio: multiply mean by 252 and std by sqrt(252) = overall by sqrt 252
 
-    (
-        (sample_mu * 252.0) / (sample_std * 252.0_f64.sqrt()),
-        sample_mu,
-    )
+    ((sample_mu / sample_std) * 252.0_f64.sqrt(), sample_mu)
 }
 
 fn sample_min_max(sample: [f64; DAYS]) -> (f64, f64) {
@@ -58,6 +55,7 @@ pub fn gen_random_dist(rng: &mut ChaCha20Rng) -> ([f64; DAYS], Stats) {
     let returns = gen_return_series(acc_sharpe, rng);
     let (sample_sharpe, sample_mu) = calc_sample_sharpe(returns);
     let (sample_min, sample_max) = sample_min_max(returns);
+    // Calculate sample sharpe error: sqrt((1 + sharpe^2 / 2) / T)
     let sharpe_error =
         ((1.0 + sample_sharpe.powi(2) / 2.0) / DAYS as f64).sqrt() * (252.0_f64.sqrt());
 
