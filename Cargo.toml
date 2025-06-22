@@ -11,19 +11,13 @@ repository = "https://github.com/KGrewal1/guess_the_sharpes"
 exclude = ["*.ipynb"]
 
 [dependencies]
-anyhow = "1.0.98"
 clap = { version = "4.0", features = ["derive"] }
-color-eyre = "0.6.5"
 compact_str = "0.9.0"
-cross = "0.2.5"
 crossterm = "0.29.0"
 rand = "0.9.1"
 rand_chacha = "0.9.0"
 rand_distr = "0.5.1"
-rand_xoshiro = "0.7.0"
 ratatui = "0.29.0"
-term = "1.0.2"
-
 
 [profile.release]
 codegen-units = 1
