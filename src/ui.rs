@@ -32,8 +32,8 @@ pub fn ui(f: &mut Frame, app: &App) {
     // Instructions section
     match app.mode {
         AppMode::Display => render_display_instructions(f, chunks[2]),
-        AppMode::Guessing(Guess { state, .. }) => {
-            render_guessing_instructions(f, &state, chunks[2])
+        AppMode::Guessing(Guess { ref state, .. }) => {
+            render_guessing_instructions(f, state, chunks[2])
         }
     }
 }
