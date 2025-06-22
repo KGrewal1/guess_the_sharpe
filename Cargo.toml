@@ -7,7 +7,7 @@ license = "MIT"
 keywords = []
 categories = []
 description = "Guess the Sharpe TUI game"
-repository = "https://github.com/KGrewal1/guess_the_sharpes"
+repository = "https://github.com/KGrewal1/guess_the_sharpe"
 exclude = ["*.ipynb"]
 
 [dependencies]
