@@ -1,4 +1,5 @@
 use crate::app::{App, AppMode, GuessState};
+use crate::dist::Stats;
 use ratatui::{
     Frame,
     layout::{Constraint, Direction, Layout},
@@ -21,36 +22,36 @@ pub fn ui(f: &mut Frame, app: &App) {
 
     // Stats section
     match app.mode {
-        AppMode::Display => render_display_stats(f, app, chunks[0]),
+        AppMode::Display => render_display_stats(f, &app.stats, chunks[0]),
         AppMode::Guessing => render_guessing_stats(f, app, chunks[0]),
     }
 
     // Chart section
-    render_chart(f, app, chunks[1]);
+    render_chart(f, &app.plot_data, chunks[1]);
 
     // Instructions section
     match app.mode {
         AppMode::Display => render_display_instructions(f, chunks[2]),
-        AppMode::Guessing => render_guessing_instructions(f, app, chunks[2]),
+        AppMode::Guessing => render_guessing_instructions(f, &app.guess_state, chunks[2]),
     }
 }
 
-fn render_display_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) {
-    let sharpe_error = app.stats.sharpe_error;
-    let mean_return = app.stats.sample_mean;
-    let min_return = app.stats.sample_min;
-    let max_return = app.stats.sample_max;
+fn render_display_stats(f: &mut Frame, stats: &Stats, area: ratatui::layout::Rect) {
+    let sharpe_error = stats.sharpe_error;
+    let mean_return = stats.sample_mean;
+    let min_return = stats.sample_min;
+    let max_return = stats.sample_max;
 
     let stats_text = vec![Line::from(vec![
         Span::styled("Actual Sharpe: ", Style::default().fg(Color::Yellow)),
         Span::styled(
-            format!("{:.4}", app.stats.acc_sharpe),
+            format!("{:.4}", stats.acc_sharpe),
             Style::default().fg(Color::Green),
         ),
         Span::raw("  "),
         Span::styled("Sample Sharpe: ", Style::default().fg(Color::Yellow)),
         Span::styled(
-            format!("{:.4}", app.stats.sample_sharpe),
+            format!("{:.4}", stats.sample_sharpe),
             Style::default().fg(Color::Cyan),
         ),
         Span::styled(
@@ -188,9 +189,7 @@ fn render_guessing_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) 
     f.render_widget(stats_paragraph, area);
 }
 
-fn render_chart(f: &mut Frame, app: &App, area: ratatui::layout::Rect) {
-    let plot_data = app.plot_data;
-
+fn render_chart(f: &mut Frame, plot_data: &[(f64, f64)], area: ratatui::layout::Rect) {
     // Find min and max values for scaling
     let min_y = plot_data
         .iter()
@@ -283,8 +282,12 @@ fn render_display_instructions(f: &mut Frame, area: ratatui::layout::Rect) {
     f.render_widget(instructions_paragraph, area);
 }
 
-fn render_guessing_instructions(f: &mut Frame, app: &App, area: ratatui::layout::Rect) {
-    let instructions = match app.guess_state {
+fn render_guessing_instructions(
+    f: &mut Frame,
+    guess_state: &GuessState,
+    area: ratatui::layout::Rect,
+) {
+    let instructions = match guess_state {
         GuessState::WaitingForGuess => {
             vec![Line::from(vec![
                 Span::styled(
