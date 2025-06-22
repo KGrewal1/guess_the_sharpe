@@ -36,21 +36,21 @@ pub fn ui(f: &mut Frame, app: &App) {
 }
 
 fn render_display_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) {
-    let sharpe_error = app.get_sharpe_error();
-    let mean_return = app.get_mean_daily_return();
-    let min_return = app.get_min_daily_return();
-    let max_return = app.get_max_daily_return();
+    let sharpe_error = app.stats.sharpe_error;
+    let mean_return = app.stats.sample_mean;
+    let min_return = app.stats.sample_min;
+    let max_return = app.stats.sample_max;
 
     let stats_text = vec![Line::from(vec![
         Span::styled("Actual Sharpe: ", Style::default().fg(Color::Yellow)),
         Span::styled(
-            format!("{:.4}", app.acc_sharpe),
+            format!("{:.4}", app.stats.acc_sharpe),
             Style::default().fg(Color::Green),
         ),
         Span::raw("  "),
         Span::styled("Sample Sharpe: ", Style::default().fg(Color::Yellow)),
         Span::styled(
-            format!("{:.4}", app.sample_sharpe),
+            format!("{:.4}", app.stats.sample_sharpe),
             Style::default().fg(Color::Cyan),
         ),
         Span::styled(
@@ -123,12 +123,12 @@ fn render_guessing_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) 
             } else {
                 "INCORRECT"
             };
-            let sharpe_error = app.get_sharpe_error();
+            let sharpe_error = app.stats.sharpe_error;
 
             // Get the target value that was being guessed
             let target_value = match app.guess_target {
-                crate::app::GuessTarget::Sample => app.sample_sharpe,
-                crate::app::GuessTarget::Actual => app.acc_sharpe,
+                crate::app::GuessTarget::Sample => app.stats.sample_sharpe,
+                crate::app::GuessTarget::Actual => app.stats.acc_sharpe,
             };
 
             vec![Line::from(vec![
@@ -157,13 +157,13 @@ fn render_guessing_stats(f: &mut Frame, app: &App, area: ratatui::layout::Rect) 
                 Span::raw(" | "),
                 Span::styled("Actual: ", Style::default().fg(Color::Yellow)),
                 Span::styled(
-                    format!("{:.4}", app.acc_sharpe),
+                    format!("{:.4}", app.stats.acc_sharpe),
                     Style::default().fg(Color::LightCyan),
                 ),
                 Span::raw(" | "),
                 Span::styled("Sample: ", Style::default().fg(Color::Yellow)),
                 Span::styled(
-                    format!("{:.4}", app.sample_sharpe),
+                    format!("{:.4}", app.stats.sample_sharpe),
                     Style::default().fg(Color::LightCyan),
                 ),
                 Span::raw(" | "),

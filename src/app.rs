@@ -1,4 +1,4 @@
-use crate::dist::{DAYS, gen_random_dist};
+use crate::dist::{DAYS, Stats, gen_random_dist};
 use rand::SeedableRng;
 use rand_chacha::ChaCha20Rng;
 
@@ -24,8 +24,7 @@ pub struct App {
     pub running: bool,
     pub rng: ChaCha20Rng,
     pub sample: [f64; DAYS],
-    pub acc_sharpe: f64,
-    pub sample_sharpe: f64,
+    pub stats: Stats,
     pub mode: AppMode,
     pub guess_state: GuessState,
     pub guess_target: GuessTarget,
@@ -38,14 +37,13 @@ pub struct App {
 impl App {
     pub fn new(mode: AppMode) -> Self {
         let mut rng = ChaCha20Rng::from_os_rng();
-        let (sample, acc_sharpe, sample_sharpe) = gen_random_dist(&mut rng);
+        let (sample, stats) = gen_random_dist(&mut rng);
 
         Self {
             running: true,
             rng,
             sample,
-            acc_sharpe,
-            sample_sharpe,
+            stats,
             mode,
             guess_state: GuessState::WaitingForGuess,
             guess_target: GuessTarget::Sample,
@@ -61,10 +59,9 @@ impl App {
     }
 
     pub fn recalc(&mut self) {
-        let (sample, acc_sharpe, sample_sharpe) = gen_random_dist(&mut self.rng);
+        let (sample, stats) = gen_random_dist(&mut self.rng);
         self.sample = sample;
-        self.acc_sharpe = acc_sharpe;
-        self.sample_sharpe = sample_sharpe;
+        self.stats = stats;
 
         if self.mode == AppMode::Guessing {
             self.guess_state = GuessState::WaitingForGuess;
@@ -102,12 +99,12 @@ impl App {
                 self.last_guess = Some(guess);
 
                 // Calculate sample sharpe error: sqrt((1 + sharpe^2 / 2) / T)
-                let sharpe_error = self.get_sharpe_error();
+                let sharpe_error = self.stats.sharpe_error;
 
                 // Choose the target value based on guess_target
                 let target_value = match self.guess_target {
-                    GuessTarget::Sample => self.sample_sharpe,
-                    GuessTarget::Actual => self.acc_sharpe,
+                    GuessTarget::Sample => self.stats.sample_sharpe,
+                    GuessTarget::Actual => self.stats.acc_sharpe,
                 };
 
                 // Check if guess is within error bounds of target
@@ -130,10 +127,6 @@ impl App {
         }
     }
 
-    pub fn get_sharpe_error(&self) -> f64 {
-        ((1.0 + self.sample_sharpe.powi(2) / 2.0) / DAYS as f64).sqrt() * (252.0_f64.sqrt())
-    }
-
     pub fn get_guess_target_name(&self) -> &'static str {
         match self.guess_target {
             GuessTarget::Sample => "Sample",
@@ -151,17 +144,5 @@ impl App {
                 (i as f64, cumulative_return)
             })
             .collect()
-    }
-
-    pub fn get_mean_daily_return(&self) -> f64 {
-        self.sample.iter().sum::<f64>() / self.sample.len() as f64
-    }
-
-    pub fn get_min_daily_return(&self) -> f64 {
-        self.sample.iter().fold(f64::INFINITY, |a, &b| a.min(b))
-    }
-
-    pub fn get_max_daily_return(&self) -> f64 {
-        self.sample.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b))
     }
 }
