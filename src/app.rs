@@ -32,7 +32,7 @@ pub enum GuessTarget {
 }
 
 impl GuessTarget {
-    pub fn name(&self) -> &'static str {
+    pub fn name(self) -> &'static str {
         match self {
             GuessTarget::Sample => "Sample",
             GuessTarget::Actual => "Actual",

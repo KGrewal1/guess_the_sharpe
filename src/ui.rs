@@ -32,9 +32,7 @@ pub fn ui(f: &mut Frame, app: &App) {
     // Instructions section
     match app.mode {
         AppMode::Display => render_display_instructions(f, chunks[2]),
-        AppMode::Guessing(Guess { ref state, .. }) => {
-            render_guessing_instructions(f, state, chunks[2])
-        }
+        AppMode::Guessing(Guess { state, .. }) => render_guessing_instructions(f, state, chunks[2]),
     }
 }
 
@@ -245,7 +243,7 @@ fn render_chart(f: &mut Frame, plot_data: &[(f64, f64)], area: ratatui::layout::
                         Style::default().add_modifier(Modifier::BOLD),
                     ),
                     Span::styled(
-                        format!("{:.3}", (min_y + max_y) / 2.0),
+                        format!("{:.3}", min_y.midpoint(max_y)),
                         Style::default().add_modifier(Modifier::BOLD),
                     ),
                     Span::styled(
@@ -286,7 +284,7 @@ fn render_display_instructions(f: &mut Frame, area: ratatui::layout::Rect) {
 
 fn render_guessing_instructions(
     f: &mut Frame,
-    guess_state: &GuessState,
+    guess_state: GuessState,
     area: ratatui::layout::Rect,
 ) {
     let instructions = match guess_state {
