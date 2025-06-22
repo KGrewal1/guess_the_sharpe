@@ -14,6 +14,7 @@ exclude = ["*.ipynb"]
 anyhow = "1.0.98"
 clap = { version = "4.0", features = ["derive"] }
 color-eyre = "0.6.5"
+compact_str = "0.9.0"
 cross = "0.2.5"
 crossterm = "0.29.0"
 rand = "0.9.1"

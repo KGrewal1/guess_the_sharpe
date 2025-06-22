@@ -5,6 +5,7 @@ mod ui;
 
 use app::{App, AppMode, Guess};
 use clap::Parser;
+use compact_str::CompactString;
 use crossterm::{
     event::{DisableMouseCapture, EnableMouseCapture},
     execute,
@@ -38,7 +39,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         AppMode::Guessing(Guess {
             state: app::GuessState::WaitingForGuess,
             target: app::GuessTarget::Sample,
-            current_guess: String::with_capacity(8),
+            current_guess: CompactString::with_capacity(12),
             score: 0,
             last_guess: None,
             guess_was_correct: false,

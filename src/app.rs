@@ -1,4 +1,5 @@
 use crate::dist::{DAYS, Stats, gen_random_dist, plot_data};
+use compact_str::CompactString;
 use rand::SeedableRng;
 use rand_chacha::ChaCha20Rng;
 
@@ -12,7 +13,7 @@ pub enum AppMode {
 pub struct Guess {
     pub state: GuessState,
     pub target: GuessTarget,
-    pub current_guess: String,
+    pub current_guess: CompactString,
     pub score: u32,
     pub last_guess: Option<f64>,
     pub guess_was_correct: bool,
