@@ -208,7 +208,7 @@ fn render_chart(f: &mut Frame, plot_data: &[(f64, f64)], area: ratatui::layout::
             .marker(symbols::Marker::Braille)
             .style(Style::default().fg(Color::Cyan))
             .graph_type(GraphType::Line)
-            .data(&plot_data),
+            .data(plot_data),
     ];
 
     let chart = Chart::new(datasets)
